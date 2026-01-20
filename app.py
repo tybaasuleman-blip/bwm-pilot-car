@@ -128,7 +128,7 @@ else:
             with st.spinner("BWM AI is calculating distance, weather, fuel, and bridges..."):
                 try:
                     # Using 1.5-flash for better stability on free tier
-                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
+                    llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", google_api_key=api_key)
                     search = DuckDuckGoSearchRun()
                     agent = create_react_agent(llm, [search])
 
@@ -163,3 +163,4 @@ else:
                     )
                 except Exception as e:
                     st.error(f"System Error: {e}")
+
