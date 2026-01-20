@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
 from langgraph.prebuilt import create_react_agent
@@ -6,9 +7,19 @@ from fpdf import FPDF
 from datetime import datetime
 import io
 
-# 1. BWM CORPORATE BRANDING & CONFIG
-st.set_page_config(page_title="BWM Pilot Car | Intelligence", page_icon="🚚", layout="wide")
+# 1. BWM CORPORATE BRANDING & CONFIG (Must be first!)
+LOGO_URL = "https://raw.githubusercontent.com/tybaasuleman-blip/bwm-pilot-car/main/PILOT_CAR_BWM_LOGO.png"
 
+st.set_page_config(
+    page_title="BWM Pilot Car | Intel",
+    page_icon=LOGO_URL,
+    layout="wide"
+)
+
+# Sidebar Logo Branding
+st.logo(LOGO_URL, link="https://bwm-pilot-car.streamlit.app")
+
+# Initialize Session States
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'driver_name' not in st.session_state:
@@ -95,7 +106,7 @@ with st.sidebar:
         # KEY LOGIC: Check Secrets first, otherwise show input
         if "GOOGLE_API_KEY" in st.secrets:
             api_key = st.secrets["GOOGLE_API_KEY"]
-            st.info("✅ Enterprise AI Key Active")
+            st.info("✅ Enterprise AI Active")
         else:
             api_key = st.text_input("Gemini API Key", type="password")
             
@@ -127,7 +138,7 @@ else:
         else:
             with st.spinner("BWM AI is calculating distance, weather, fuel, and bridges..."):
                 try:
-                    # Using 1.5-flash for better stability on free tier
+                    # Using flash-latest for stability
                     llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", google_api_key=api_key)
                     search = DuckDuckGoSearchRun()
                     agent = create_react_agent(llm, [search])
@@ -163,4 +174,3 @@ else:
                     )
                 except Exception as e:
                     st.error(f"System Error: {e}")
-
