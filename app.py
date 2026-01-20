@@ -6,7 +6,7 @@ from fpdf import FPDF
 from datetime import datetime
 import io
 
-# 1. BWM CORPORATE BRANDING
+# 1. BWM CORPORATE BRANDING & CONFIG
 st.set_page_config(page_title="BWM Pilot Car | Intelligence", page_icon="🚚", layout="wide")
 
 if 'logged_in' not in st.session_state:
@@ -78,7 +78,7 @@ def create_bwm_pdf(route, content, driver):
     
     return bytes(pdf.output(dest='S'))
 
-# 3. SIDEBAR AUTH
+# 3. SIDEBAR AUTH & API KEY
 with st.sidebar:
     st.markdown("### 🛠️ BWM TERMINAL")
     if not st.session_state.logged_in:
@@ -91,7 +91,14 @@ with st.sidebar:
                 st.rerun()
     else:
         st.success(f"ONLINE: {st.session_state.driver_name}")
-        api_key = st.text_input("Gemini API Key", type="password")
+        
+        # KEY LOGIC: Check Secrets first, otherwise show input
+        if "GOOGLE_API_KEY" in st.secrets:
+            api_key = st.secrets["GOOGLE_API_KEY"]
+            st.info("✅ Enterprise AI Key Active")
+        else:
+            api_key = st.text_input("Gemini API Key", type="password")
+            
         if st.button("End Session"):
             st.session_state.logged_in = False
             st.rerun()
@@ -114,17 +121,17 @@ else:
         if st.button("✨ Load Video Demo Route"):
             route_q = "Houston, TX to New Orleans, LA via I-10"
 
-    if (search_trigger or route_q == "Houston, TX to New Orleans, LA via I-10") and route_q:
+    if (search_trigger) and route_q:
         if not api_key:
-            st.error("Please provide your API Key in the sidebar.")
+            st.error("Please provide your API Key in the sidebar or Secrets.")
         else:
             with st.spinner("BWM AI is calculating distance, weather, fuel, and bridges..."):
                 try:
-                    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key)
+                    # Using 1.5-flash for better stability on free tier
+                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
                     search = DuckDuckGoSearchRun()
                     agent = create_react_agent(llm, [search])
 
-                    # EFFICIENT ALL-IN-ONE PROMPT
                     prompt = f"""
                     Research a professional safety audit for BWM Pilot Car route: {route_q}.
                     Provide the following in one concise report:
@@ -139,18 +146,15 @@ else:
                     response = agent.invoke({"messages": [("user", prompt)]})
                     report_text = response["messages"][-1].content
                     
-                    # Fix potential list format issue from model response
                     if isinstance(report_text, list):
                         report_text = "\n".join([str(item.get('text', item)) for item in report_text])
 
-                    # DISPLAY COLORFUL REPORT
                     st.markdown(f"<div class='report-card'><h3>Route Intel: {route_q}</h3><hr>{report_text}</div>", unsafe_allow_html=True)
                     
-                    # PDF GENERATION AND DOWNLOAD BUTTON
                     pdf_data = create_bwm_pdf(route_q, report_text, st.session_state.driver_name)
                     
                     st.divider()
-                    st.success("✅ Analysis Complete. Official BWM PDF Report is ready for download below.")
+                    st.success("✅ Analysis Complete. Official BWM PDF Report is ready.")
                     st.download_button(
                         label="📥 DOWNLOAD OFFICIAL BWM PDF REPORT",
                         data=pdf_data,
@@ -158,5 +162,4 @@ else:
                         mime="application/pdf"
                     )
                 except Exception as e:
-
                     st.error(f"System Error: {e}")
