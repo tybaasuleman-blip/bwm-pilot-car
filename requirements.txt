@@ -1,6 +1,5 @@
-streamlit
-fpdf2
+ddgs
 langchain-google-genai
 langchain-community
 langgraph
-duckduckgo-search
+fpdf2
