@@ -7,7 +7,7 @@ from fpdf import FPDF
 from datetime import datetime
 import io
 
-# 1. PRIMARY PAGE CONFIG (Must be the very first Streamlit command!)
+# 1. PRIMARY PAGE CONFIG (Must be first!)
 LOGO_URL = "https://raw.githubusercontent.com/tybaasuleman-blip/bwm-pilot-car/main/PILOT_CAR_BWM_LOGO.png"
 
 st.set_page_config(
@@ -117,8 +117,8 @@ else:
         else:
             with st.spinner("BWM AI is calculating distance, weather, fuel, and bridges..."):
                 try:
-                    # FIX: Correct model name for LangChain compatibility
-                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", google_api_key=api_key)
+                    # UPDATED MODEL NAME
+                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
                     search = DuckDuckGoSearchRun()
                     agent = create_react_agent(llm, [search])
                     prompt = f"Research a professional safety audit for BWM Pilot Car route: {route_q}. Include Distance, Weather, Bridges/Clearances, and Fuel stops."
