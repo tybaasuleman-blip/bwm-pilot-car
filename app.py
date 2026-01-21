@@ -117,7 +117,8 @@ else:
         else:
             with st.spinner("BWM AI is calculating distance, weather, fuel, and bridges..."):
                 try:
-                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
+                    # FIX: Correct model name for LangChain compatibility
+                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", google_api_key=api_key)
                     search = DuckDuckGoSearchRun()
                     agent = create_react_agent(llm, [search])
                     prompt = f"Research a professional safety audit for BWM Pilot Car route: {route_q}. Include Distance, Weather, Bridges/Clearances, and Fuel stops."
