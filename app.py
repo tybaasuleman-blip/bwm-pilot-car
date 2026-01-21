@@ -119,7 +119,7 @@ else:
             with st.spinner("BWM AI is calculating route data..."):
                 try:
                     # FIX: Updated model ID to prevent 404 NOT_FOUND
-                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", google_api_key=api_key)
+                    llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", google_api_key=api_key)
                     search = DuckDuckGoSearchRun()
                     agent = create_react_agent(llm, [search])
                     
@@ -133,3 +133,4 @@ else:
                     st.download_button(label="📥 DOWNLOAD OFFICIAL BWM PDF REPORT", data=pdf_data, file_name=f"BWM_Report.pdf", mime="application/pdf")
                 except Exception as e:
                     st.error(f"System Error: {e}")
+
