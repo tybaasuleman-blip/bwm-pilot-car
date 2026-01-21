@@ -7,11 +7,12 @@ from fpdf import FPDF
 from datetime import datetime
 import io
 
-# 1. BWM CORPORATE BRANDING & CONFIG (Must be first!)
+# 1. PRIMARY PAGE CONFIG (Must be the very first Streamlit command!)
+# This sets the browser tab title and the app icon
 LOGO_URL = "https://raw.githubusercontent.com/tybaasuleman-blip/bwm-pilot-car/main/PILOT_CAR_BWM_LOGO.png"
 
 st.set_page_config(
-    page_title="BWM Pilot Car | Intel",
+    page_title="BWM Pilot Car | Intelligence",
     page_icon=LOGO_URL,
     layout="wide"
 )
@@ -103,7 +104,7 @@ with st.sidebar:
     else:
         st.success(f"ONLINE: {st.session_state.driver_name}")
         
-        # KEY LOGIC: Check Secrets first, otherwise show input
+        # KEY LOGIC: Check Secrets first
         if "GOOGLE_API_KEY" in st.secrets:
             api_key = st.secrets["GOOGLE_API_KEY"]
             st.info("✅ Enterprise AI Active")
