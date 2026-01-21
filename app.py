@@ -132,17 +132,22 @@ else:
                     # Display to UI
                     st.markdown(f"<div class='report-card'>{report_text}</div>", unsafe_allow_html=True)
                     
-                    # Create PDF for Download
-                    pdf_data = create_bwm_pdf(route_q, report_text, st.session_state.driver_name)
-                    st.download_button(
-                        label="📥 Download Official PDF Report",
-                        data=pdf_data,
-                        file_name=f"BWM_Report_{datetime.now().strftime('%Y%m%d')}.pdf",
-                        mime="application/pdf"
-                    )
+                 # Create PDF for Download
+pdf_raw = create_bwm_pdf(route_q, report_text, st.session_state.driver_name)
+
+# CONVERT bytearray TO bytes
+pdf_bytes = bytes(pdf_raw) 
+
+st.download_button(
+    label="📥 Download Official PDF Report",
+    data=pdf_bytes,
+    file_name=f"BWM_Report_{datetime.now().strftime('%Y%m%d')}.pdf",
+    mime="application/pdf"
+)
                     
                 except Exception as e:
                     if "429" in str(e):
                         st.error("Quota Exceeded (Limit 5/min). Please wait 60 seconds.")
                     else:
                         st.error(f"Error: {e}")
+
