@@ -71,12 +71,13 @@ def create_bwm_pdf(route, content, driver):
     pdf.set_font("Arial", size=11)
     pdf.set_text_color(0, 0, 0)
     
-    # Clean text to avoid encoding errors with standard PDF fonts
+    # Clean text to avoid encoding errors
     clean_text = str(content).replace('\u2022', '-').replace('\u2013', '-').replace('\u2019', "'").replace('\u201d', '"').replace('\u201c', '"')
     pdf.multi_cell(0, 8, txt=clean_text.encode('latin-1', 'ignore').decode('latin-1'))
     return pdf.output(dest='S')
 
 # 3. SIDEBAR AUTH & API KEY
+api_key = None
 with st.sidebar:
     st.markdown("### 🛠️ BWM TERMINAL")
     if not st.session_state.logged_in:
@@ -108,7 +109,7 @@ else:
         else:
             with st.spinner("AI is calculating..."):
                 try:
-                    # UPDATED MODEL NAME
+                    # MODEL SET TO YOUR REQUIREMENT
                     llm = ChatGoogleGenerativeAI(
                         model="gemini-flash-latest", 
                         google_api_key=api_key,
@@ -121,10 +122,9 @@ else:
                     
                     response = agent.invoke({"messages": [("user", prompt)]})
                     
-                    # EXTRACT CONTENT SAFELY (Handles list or string output)
+                    # EXTRACT CONTENT
                     raw_content = response["messages"][-1].content
                     if isinstance(raw_content, list):
-                        # Extracts text from the list structure found in your error
                         report_text = raw_content[0].get('text', str(raw_content))
                     else:
                         report_text = raw_content
@@ -132,22 +132,19 @@ else:
                     # Display to UI
                     st.markdown(f"<div class='report-card'>{report_text}</div>", unsafe_allow_html=True)
                     
-                 # Create PDF for Download
-pdf_raw = create_bwm_pdf(route_q, report_text, st.session_state.driver_name)
+                    # Create PDF for Download
+                    pdf_raw = create_bwm_pdf(route_q, report_text, st.session_state.driver_name)
+                    pdf_bytes = bytes(pdf_raw) # FIXED BINARY DATA ERROR
 
-# CONVERT bytearray TO bytes
-pdf_bytes = bytes(pdf_raw) 
-
-st.download_button(
-    label="📥 Download Official PDF Report",
-    data=pdf_bytes,
-    file_name=f"BWM_Report_{datetime.now().strftime('%Y%m%d')}.pdf",
-    mime="application/pdf"
-)
-                    
+                    st.download_button(
+                        label="📥 Download Official PDF Report",
+                        data=pdf_bytes,
+                        file_name=f"BWM_Report_{datetime.now().strftime('%Y%m%d')}.pdf",
+                        mime="application/pdf"
+                    )
+                
                 except Exception as e:
                     if "429" in str(e):
-                        st.error("Quota Exceeded (Limit 5/min). Please wait 60 seconds.")
+                        st.error("Quota Exceeded. Please wait 60 seconds.")
                     else:
                         st.error(f"Error: {e}")
-
